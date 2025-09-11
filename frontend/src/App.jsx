@@ -1,11 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
 import Watchlater from './components/Watchlater';
 import Footer from './components/Footer'; // Import the Footer component
 import axios from 'axios';
 import Login from './pages/Login'; // Import the Login component
+import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
+import ProfilePage from './pages/Profile';
+import ChangePasswordPage from './pages/Password';
+
+export const AuthContext = React.createContext(null); // Create AuthContext
+
+const getAuthToken = () => localStorage.getItem('token'); // Helper to get token
 
 function App() {
   const [movies, setMovies] = useState([]);
@@ -16,11 +23,20 @@ function App() {
   const [watchLaterMovies, setWatchLaterMovies] = useState([]);
   const [currentGenre, setCurrentGenre] = useState(null);
   const [browsedMovies, setBrowsedMovies] = useState([]);
-  const [selectedTab, setSelectedTab] = useState('All Movies')
-  const [similarMovies, setSimilarMovies] = useState([]); // New state for similar movies
-  
+  const [selectedTab, setSelectedTab] = useState('All Movies');
+  const [similarMovies, setSimilarMovies] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token')); // New state for login status
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+
   const location = useLocation(); // Get current location
+  const navigate = useNavigate(); // Initialize navigate
   const hideNavAndFooter = location.pathname === '/login'; // Check if current path is /login
+
+  // Check login status on app load/reload
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem('token'));
+  }, []);
 
   // Load movies and genres (mocked)
   useEffect(() => {
@@ -38,7 +54,8 @@ function App() {
           backdrop: movie.backdrop,
           popularity: movie.popularity,
           vote_average: movie.vote_average,
-          release_date: movie.release_date
+          release_date: movie.release_date,
+          vote_count: movie.vote_count
         }))
         setMovies(movieData)
         setFilteredMovies(movieData)
@@ -70,38 +87,53 @@ function App() {
     fetchGenres()
   }, []);
 
-
-  // Load watchLaterMovies from localStorage
+  // Load watchLaterMovies from localStorage (logged in) or sessionStorage (not logged in)
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('watchLater'));
-    if (saved) setWatchLaterMovies(saved);
-  }, []);
-
-  // Save watchLaterMovies to localStorage
-  useEffect(() => {
-    localStorage.setItem('watchLater', JSON.stringify(watchLaterMovies));
-  }, [watchLaterMovies]);
-
-  const handleSearch = (query) => {
-    if (query === '') {
-      if (selectedGenre === 0) {
-        setFilteredMovies(movies);
-      } else {
-        const moviesByGenre = movies.filter((movie) => movie.genre_ids.includes(selectedGenre));
-        setFilteredMovies(moviesByGenre);
-      }
+    if (isLoggedIn) {
+      const saved = JSON.parse(localStorage.getItem('watchLater'));
+      if (saved) setWatchLaterMovies(saved);
     } else {
-      let moviesToFilter = movies;
-      if (selectedGenre !== 0) {
-        moviesToFilter = movies.filter((movie) => movie.genre_ids.includes(selectedGenre));
-      }
-      setFilteredMovies(
-        moviesToFilter.filter((movie) =>
-          movie.title.toLowerCase().split(" ").some(word => word.startsWith(query.toLowerCase()))
-        )
-      );
+      const savedTemp = JSON.parse(sessionStorage.getItem('watchLaterTemp'));
+      if (savedTemp) setWatchLaterMovies(savedTemp);
     }
+  }, [isLoggedIn]); // Re-run when login status changes
+
+  // Save watchLaterMovies to localStorage (logged in) or sessionStorage (not logged in)
+  useEffect(() => {
+    if (isLoggedIn) {
+      localStorage.setItem('watchLater', JSON.stringify(watchLaterMovies));
+    } else {
+      sessionStorage.setItem('watchLaterTemp', JSON.stringify(watchLaterMovies));
+    }
+  }, [watchLaterMovies, isLoggedIn]); // Re-run when watchLaterMovies or login status changes
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  
+    if (!query) {
+      setSearchResults([]);
+      return;
+    }
+  
+    const queryWords = query.toLowerCase().trim().split(/\s+/);
+  
+    const results = movies.filter((movie) => {
+      const titleWords = movie.title.toLowerCase().split(/\s+/);
+  
+      // Check if all query words appear in order in the title words
+      let titleIndex = 0;
+      return queryWords.every((qWord) => {
+        while (titleIndex < titleWords.length && !titleWords[titleIndex].startsWith(qWord)) {
+          titleIndex++;
+        }
+        return titleIndex < titleWords.length;
+      });
+    });
+  
+    setSearchResults(results);
   };
+  
+  
+  
 
   const handleMovieClick = (movie) => {
     setSelectedMovie(movie);
@@ -123,7 +155,29 @@ function App() {
 
   const handleAddToWatchLater = (movie) => {
     if (!watchLaterMovies.some(m => m.id === movie.id)) {
-      setWatchLaterMovies([...watchLaterMovies, movie]);
+      const updatedWatchLater = [...watchLaterMovies, movie];
+      setWatchLaterMovies(updatedWatchLater);
+
+      if (isLoggedIn) {
+        // Save to backend via API
+        const token = getAuthToken();
+        if (token) {
+          axios.post('/api/users/favorites', { movieId: movie.id }, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          .then(response => {
+            console.log('Movie added to favorites in backend:', response.data);
+          })
+          .catch(error => {
+            console.error('Failed to add movie to favorites in backend:', error);
+            // Optionally revert local state or show error
+          });
+        }
+        // The useEffect for saving will handle localStorage
+      } else {
+        // For non-logged-in users, the useEffect will handle sessionStorage
+        // Optionally, show a prompt: "Log in to save permanently!" - will be added later if user requests
+      }
     }
   };
 
@@ -163,45 +217,65 @@ function App() {
   
 
   return (
-    <div className="w-screen pb-20"> {/* Added padding-bottom here */}
-      
+    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
+      <div className="flex flex-col min-h-screen">
         {!hideNavAndFooter && (
-          <Navbar onHomeClick={handleHomeClick} onSearch={handleSearch} genres={genres} onFilterChange={handleGenreClick} selectedGenre={selectedGenre}/>
-        )}
-        <Routes>
-          <Route path="/" element={
-            <Home
-              filteredMovies={filteredMovies}
-              selectedMovie={selectedMovie}
-              watchLaterMovies={watchLaterMovies}
-              onSearch={handleSearch}
-              onMovieClick={handleMovieClick}
-              onAddToWatchLater={handleAddToWatchLater}
-              onRemoveFromWatchLater={handleRemoveFromWatchLater}
-              genres={genres}
-              onFilterChange={handleGenreClick}
-              currentGenre={currentGenre}
-              recommendedMovies={[]}
-              handleGenreClick={handleGenreClick}
-              selectedGenre={selectedGenre}
-              movies={movies}
-              movieCategories={movieCategories}
-              selectedTab={selectedTab}
-              onTabClick={handleTabClick}
-              similarMovies={similarMovies} // Pass similarMovies here
-            />} 
+          <Navbar
+            onHomeClick={handleHomeClick}
+            onSearch={handleSearch}
+            genres={genres}
+            onFilterChange={handleGenreClick}
+            selectedGenre={selectedGenre}
           />
-          <Route path="/watch-later" element={
-            <Watchlater 
-              watchLaterMovies={watchLaterMovies} 
+        )}
+
+        <div className="flex-1">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <Home
+                  filteredMovies={filteredMovies}
+                  selectedMovie={selectedMovie}
+                  watchLaterMovies={watchLaterMovies}
+                  onSearch={handleSearch}
+                  onMovieClick={handleMovieClick}
+                  onAddToWatchLater={handleAddToWatchLater}
+                  onRemoveFromWatchLater={handleRemoveFromWatchLater}
+                  genres={genres}
+                  onFilterChange={handleGenreClick}
+                  currentGenre={currentGenre}
+                  recommendedMovies={[]}
+                  handleGenreClick={handleGenreClick}
+                  selectedGenre={selectedGenre}
+                  movies={movies}
+                  movieCategories={movieCategories}
+                  selectedTab={selectedTab}
+                  onTabClick={handleTabClick}
+                  similarMovies={similarMovies}
+                  searchQuery={searchQuery}
+                  searchResults={searchResults}
+                />
+              }
             />
-          } />
-          <Route path="/login" element={
-            <Login />
-          } />
-        </Routes>
-        {!hideNavAndFooter && <Footer />} {/* Render the Footer component here */}
+            <Route
+              path="/watch-later"
+              element={
+                <ProtectedRoute>
+                  <Watchlater watchLaterMovies={watchLaterMovies} />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/login" element={<Login />} />
+            <Route path="/profile" element={<ProfilePage genres={genres}/>} />
+            <Route path="/change-password" element={<ChangePasswordPage/>} />
+          </Routes>
         </div>
+
+        {!hideNavAndFooter && <Footer />}
+      </div>
+
+      </AuthContext.Provider>
   );
 }
 

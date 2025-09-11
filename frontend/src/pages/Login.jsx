@@ -1,6 +1,8 @@
 import React from 'react'
 import MovieImage from '../assets/Movie.png'; // Import the image
 import axios from 'axios'; // Added axios import
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { AuthContext } from '../App'; // Import AuthContext
 
 const Login = () => {
   const [isLogin, setIsLogin] = React.useState(true);
@@ -8,13 +10,44 @@ const Login = () => {
   const [password, setPassword] = React.useState('');
   const [username, setUsername] = React.useState('');
 
+  const navigate = useNavigate(); // Initialize navigate
+  const { setIsLoggedIn } = React.useContext(AuthContext); // Use AuthContext
+
+  React.useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/");
+    }
+  }, [navigate]);
+
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
       // Call your backend login API
+      console.log("Password: ", password)
       const response = await axios.post('/api/users/login', { email, password });
       console.log('Login successful:', response.data);
-      // Handle successful login (e.g., store token, redirect)
+      localStorage.setItem('token', response.data.token); // Store token
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      setIsLoggedIn(true); // Update global login state
+
+      // Merge temporary watch later items
+      const temporaryWatchLater = JSON.parse(sessionStorage.getItem('watchLaterTemp'));
+      if (temporaryWatchLater && temporaryWatchLater.length > 0) {
+        const token = response.data.token; // Use the newly received token
+        for (const movie of temporaryWatchLater) {
+          try {
+            await axios.post('/api/users/favorites', { movieId: movie.id }, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+          } catch (mergeError) {
+            console.error('Failed to merge temporary watch later item:', movie.id, mergeError);
+          }
+        }
+        sessionStorage.removeItem('watchLaterTemp'); // Clear temporary storage after merging
+      }
+
+      navigate('/'); // Redirect to home page
     } catch (error) {
       console.error('Login failed:', error.response.data);
       // Handle login error (e.g., display error message)
@@ -27,8 +60,28 @@ const Login = () => {
       // Call your backend signup API
       const response = await axios.post('/api/users/signup', { username, email, password });
       console.log('Signup successful:', response.data);
-      // Handle successful signup (e.g., automatically log in, redirect)
+      localStorage.setItem('token', response.data.token); // Store token (optional, could auto-login and redirect)
+      localStorage.setItem("user", JSON.stringify(user));
       setIsLogin(true); // Switch to login form after successful signup
+      setIsLoggedIn(true); // Update global login state
+
+      // Merge temporary watch later items after signup
+      const temporaryWatchLater = JSON.parse(sessionStorage.getItem('watchLaterTemp'));
+      if (temporaryWatchLater && temporaryWatchLater.length > 0) {
+        const token = response.data.token; // Use the newly received token
+        for (const movie of temporaryWatchLater) {
+          try {
+            await axios.post('/api/users/favorites', { movieId: movie.id }, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+          } catch (mergeError) {
+            console.error('Failed to merge temporary watch later item during signup:', movie.id, mergeError);
+          }
+        }
+        sessionStorage.removeItem('watchLaterTemp'); // Clear temporary storage after merging
+      }
+
+      navigate('/'); // Redirect to home page after signup (assuming auto-login or immediate use)
     } catch (error) {
       console.error('Signup failed:', error.response.data);
       // Handle signup error (e.g., display error message)
@@ -42,16 +95,17 @@ const Login = () => {
       style={{backgroundImage: `url(${MovieImage})`, backgroundSize: 'cover', backgroundPosition:'center' }}>
         <div className='absolute inset-0 bg-black opacity-60'></div> {/* Dark overlay */}
         <div className='relative text-center z-10'>
-          <h1 className='text-white text-5xl font-bold mb-4'>Welcome to Netflix!</h1>
+          <h1 className='text-white text-5xl font-bold mb-4'>Welcome to Movie Browser App!</h1>
           <p className='text-gray-300 text-lg text-center max-w-lg mx-auto'>Discover your next favorite movie or TV show. Dive into a world of entertainment tailored just for you.</p>
-          <button className='mt-8 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded transition duration-300 text-xl'>Explore Movies</button>
+          <button
+      onClick={() => navigate("/")}
+      className="mt-8 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded transition duration-300 text-xl">Explore Movies</button>
         </div>
       </div>
 
       {/* Login/Signup Form Section */}
       <div className='w-1/2 h-full relative bg-gray-900 p-8 flex flex-col gap-6 rounded-lg shadow-2xl justify-center items-center'>
         {/* Netflix Logo Placeholder */}
-        <img src="https://assets.nflxext.com/us/email/logo_netflix_415X114.png" alt="Netflix Logo" className="w-40 mb-6" />
         
          <div className='w-full max-w-sm'> {/* Wrapper for form elements to control width */}
            <h1 className='text-white text-3xl font-bold text-left mb-6'>{isLogin ? 'Sign In' : 'Sign Up'}</h1>
@@ -94,7 +148,7 @@ const Login = () => {
              <a href="#" className='hover:underline'>Need help?</a>
            </div>
            <div className='text-gray-400 mt-8 text-lg'>
-             {isLogin ? 'New to Netflix?' : 'Already have an account?'}
+             {isLogin ? 'New here?' : 'Already have an account?'}
              <a href="#" onClick={() => setIsLogin(!isLogin)} className='text-white hover:underline ml-2'>{isLogin ? 'Sign up now' : 'Sign In'}</a>.
            </div>
          </div>

@@ -1,24 +1,48 @@
 import React, { useState } from 'react';
+import MovieModal from './MovieModal';
 
-const MovieFrame = ({ title, poster, overview, rating, onClick, backdrop }) => {
-  const [isHovered, setIsHovered] = useState(false);
+const MovieFrame = ({
+  movie,
+  onAddToWatchLater,
+  onRemoveFromWatchLater,
+  watchLaterMovies,
+  genres,
+  handleGenreClick
+}) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const isInWatchLater = Array.isArray(watchLaterMovies)
+  ? watchLaterMovies.some((m) => m.id === movie.id)
+  : false;
 
   return (
-    <div className='w-60 bg-black p-1 cursor-pointer rounded-xl'
-    onClick={onClick}>
-      <div 
-      className='relative max-w-sm rounded-lg overflow-hidden transition-all duration-800 '
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)} 
-    >
-      <img className="w-full h-80" src={poster} alt="Movie Poster" />
-      {isHovered && (
-        <div className="absolute inset-0 bg-gray-900/60 flex justify-center items-center">
-          <p className="text-center">{overview}</p>
+    <>
+      {/* Movie Card */}
+      <div
+        className="w-60 bg-black p-1 cursor-pointer rounded-xl"
+        onClick={() => setIsModalOpen(true)}
+      >
+        <div
+          className="relative max-w-sm rounded-lg overflow-hidden transition-all duration-800"
+        >
+          <img className="w-full h-80 object-cover hover:brightness-75" src={movie.poster} alt={movie.title} />
+          
         </div>
+      </div>
+
+      {/* Movie Modal */}
+      {isModalOpen && (
+        <MovieModal
+          movie={movie}
+          onClose={() => setIsModalOpen(false)}
+          onAddToWatchLater={() => onAddToWatchLater(movie)}
+          onRemoveFromWatchLater={() => onRemoveFromWatchLater(movie.id)}
+          isInWatchLater={isInWatchLater}
+          genres={genres}
+          handleGenreClick={handleGenreClick}
+        />
       )}
-    </div>
-    </div>
+    </>
   );
 };
 

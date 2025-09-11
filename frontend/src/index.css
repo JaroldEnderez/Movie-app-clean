@@ -28,6 +28,7 @@ body {
   min-height: 100vh;
   background-color: #1a202c; /* Equivalent to bg-gray-900 */
   width: 100vw;
+  overflow-x: hidden; /* Added to prevent horizontal scrolling */
 }
 
 h1 {
