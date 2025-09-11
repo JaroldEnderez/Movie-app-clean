@@ -267,7 +267,12 @@ function App() {
               }
             />
             <Route path="/login" element={<Login />} />
-            <Route path="/profile" element={<ProfilePage genres={genres}/>} />
+            <Route path="/profile" 
+            element={
+            <ProtectedRoute>
+              <ProfilePage genres={genres}/>
+            </ProtectedRoute>
+            } />
             <Route path="/change-password" element={<ChangePasswordPage/>} />
           </Routes>
         </div>

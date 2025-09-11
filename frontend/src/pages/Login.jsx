@@ -23,70 +23,91 @@ const Login = () => {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Call your backend login API
-      console.log("Password: ", password)
+      console.log("Logging in with email:", email);
+  
+      // Call backend login API
       const response = await axios.post('/api/users/login', { email, password });
+  
+      if (!response.data || !response.data.user || !response.data.token) {
+        console.error('Login response missing user or token:', response.data);
+        return;
+      }
+  
       console.log('Login successful:', response.data);
-      localStorage.setItem('token', response.data.token); // Store token
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+  
+      // Store token and user safely
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+  
       setIsLoggedIn(true); // Update global login state
-
+  
       // Merge temporary watch later items
-      const temporaryWatchLater = JSON.parse(sessionStorage.getItem('watchLaterTemp'));
-      if (temporaryWatchLater && temporaryWatchLater.length > 0) {
-        const token = response.data.token; // Use the newly received token
+      const temporaryWatchLater = JSON.parse(sessionStorage.getItem('watchLaterTemp') || '[]');
+      if (temporaryWatchLater.length > 0) {
+        const token = response.data.token;
         for (const movie of temporaryWatchLater) {
           try {
-            await axios.post('/api/users/favorites', { movieId: movie.id }, {
-              headers: { Authorization: `Bearer ${token}` }
-            });
+            await axios.post(
+              '/api/users/favorites',
+              { movieId: movie.id },
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
           } catch (mergeError) {
             console.error('Failed to merge temporary watch later item:', movie.id, mergeError);
           }
         }
         sessionStorage.removeItem('watchLaterTemp'); // Clear temporary storage after merging
       }
-
+  
       navigate('/'); // Redirect to home page
     } catch (error) {
-      console.error('Login failed:', error.response.data);
-      // Handle login error (e.g., display error message)
+      console.error('Login failed:', error?.response?.data || error);
+      // Optionally, show an error message to the user
     }
   };
+  
 
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Call your backend signup API
+      // Call backend signup API
       const response = await axios.post('/api/users/signup', { username, email, password });
       console.log('Signup successful:', response.data);
-      localStorage.setItem('token', response.data.token); // Store token (optional, could auto-login and redirect)
-      localStorage.setItem("user", JSON.stringify(user));
-      setIsLogin(true); // Switch to login form after successful signup
-      setIsLoggedIn(true); // Update global login state
-
-      // Merge temporary watch later items after signup
+  
+      // Store token
+      localStorage.setItem('token', response.data.token);
+  
+      // Store user info returned from backend
+      const userData = response.data.user; // make sure your backend returns { token, user }
+      localStorage.setItem("user", JSON.stringify(userData));
+  
+      setIsLogin(true);      // Switch to login form after signup
+      setIsLoggedIn(true);   // Update global login state
+  
+      // Merge temporary watch later items
       const temporaryWatchLater = JSON.parse(sessionStorage.getItem('watchLaterTemp'));
       if (temporaryWatchLater && temporaryWatchLater.length > 0) {
-        const token = response.data.token; // Use the newly received token
+        const token = response.data.token; 
         for (const movie of temporaryWatchLater) {
           try {
-            await axios.post('/api/users/favorites', { movieId: movie.id }, {
-              headers: { Authorization: `Bearer ${token}` }
-            });
+            await axios.post(
+              '/api/users/favorites',
+              { movieId: movie.id },
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
           } catch (mergeError) {
             console.error('Failed to merge temporary watch later item during signup:', movie.id, mergeError);
           }
         }
-        sessionStorage.removeItem('watchLaterTemp'); // Clear temporary storage after merging
+        sessionStorage.removeItem('watchLaterTemp');
       }
-
-      navigate('/'); // Redirect to home page after signup (assuming auto-login or immediate use)
+  
+      navigate('/'); // Redirect home
     } catch (error) {
-      console.error('Signup failed:', error.response.data);
-      // Handle signup error (e.g., display error message)
+      console.error('Signup failed:', error.response?.data || error.message);
     }
   };
+  
 
   return (
     <div className='flex h-screen w-screen'> {/* Changed to flex for side-by-side, removed centering for now */}

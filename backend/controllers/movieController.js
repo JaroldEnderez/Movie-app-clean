@@ -110,7 +110,7 @@ const getGenres = async (req, res) => {
             error: error.message
         });
     }
-};
+}
 
 module.exports = {
     getPopularMovies,

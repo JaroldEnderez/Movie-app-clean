@@ -134,4 +134,69 @@ const getRecommendations = asyncHandler(async(req, res) => {
     }
 })
 
-module.exports = {registerUser, login, addFavoriteMovie, getFavorites, getRecommendations}
+    // GET /api/users/:id/genres
+    const getPreferredGenres = async (req, res) => {
+      try {
+        const userId = req.params.id;
+        const user = await User.findById(userId).select('preferredGenres');
+    
+        if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+        }
+    
+        res.json({ preferredGenres: user.preferredGenres });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+      }
+    };
+  
+    
+    
+
+// Add genres to user's preferred genres
+const addToPreferredGenres = async (req, res) => {
+  try {
+    const user = await User.findById(req.user); // use req.user
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    const { genre } = req.body;
+    if (!genre) return res.status(400).json({ msg: "No genre provided" });
+
+    if (!user.preferredGenres.includes(genre)) {
+      user.preferredGenres.push(genre);
+      await user.save();
+    }
+
+    res.json({ preferredGenres: user.preferredGenres });
+  } catch (err) {
+    console.error("Error adding genre:", err);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
+
+// Remove a genre from user's preferred genres
+const removeFromPreferredGenres = asyncHandler(async (req, res) => {
+  const { genre } = req.body; // single genre to remove
+  if (!genre) return res.status(400).json({ msg: 'Genre is required' });
+
+  const user = await User.findById(req.user.id);
+  if (!user) return res.status(404).json({ msg: 'User not found' });
+
+  user.preferredGenres = (user.preferredGenres || []).filter(g => g !== genre);
+  await user.save();
+
+  res.json({ preferredGenres: user.preferredGenres });
+});
+
+
+module.exports = 
+{registerUser, 
+  login, 
+  addFavoriteMovie, 
+  getFavorites, 
+  getRecommendations,    
+  removeFromPreferredGenres,
+  getPreferredGenres,
+  addToPreferredGenres}
