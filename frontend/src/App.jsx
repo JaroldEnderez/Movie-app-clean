@@ -9,7 +9,7 @@ import Login from './pages/Login'; // Import the Login component
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 import ProfilePage from './pages/Profile';
 import ChangePasswordPage from './pages/Password';
-
+import api from "./api";
 export const AuthContext = React.createContext(null); // Create AuthContext
 
 const getAuthToken = () => localStorage.getItem('token'); // Helper to get token
@@ -42,7 +42,7 @@ function App() {
   useEffect(() => {
     const fetchMovies =  async() => {
       try{
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/movies`)
+        const response = await api.get('/api/movies')
         const movies = response.data.data
         const movieData = movies.map((movie) => ({
           title: movie.title,
@@ -68,7 +68,7 @@ function App() {
 
     const fetchGenres =  async() => {
       try{
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/movies/genres`)
+        const response = await api.get('/api/movies/genres')
         const genres = response.data.data
         const genreData = genres.map((genre) => ({
           id: genre.id,
