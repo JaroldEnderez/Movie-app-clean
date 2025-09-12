@@ -37,9 +37,10 @@ function App() {
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem('token'));
   }, []);
-  console.log("API URL:", import.meta.env.VITE_API_URL);
+
   // Load movies and genres (mocked)
   useEffect(() => {
+    console.log("API URL:", import.meta.env.VITE_API_URL);
     const fetchMovies =  async() => {
       try{
         const response = await api.get('/api/movies')
