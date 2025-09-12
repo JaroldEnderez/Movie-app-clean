@@ -8,10 +8,10 @@ const {
   getPreferredGenres,
   addToPreferredGenres,
   removeFromPreferredGenres
-} = require('../../api/controllers/UserController');
+} = require('../controllers/UserController');
 
 const router = express.Router();
-const auth = require('../../api/middleware/auth');
+const auth = require('../middleware/auth');
 
 router.route('/signup').post(registerUser);
 router.route('/login').post(login);
