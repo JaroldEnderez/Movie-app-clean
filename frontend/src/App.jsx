@@ -42,7 +42,7 @@ function App() {
   useEffect(() => {
     const fetchMovies =  async() => {
       try{
-        const response = await axios.get('/api/movies')
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/movies`)
         const movies = response.data.data
         const movieData = movies.map((movie) => ({
           title: movie.title,
@@ -68,7 +68,7 @@ function App() {
 
     const fetchGenres =  async() => {
       try{
-        const response = await axios.get('/api/movies/genres')
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/movies/genres`)
         const genres = response.data.data
         const genreData = genres.map((genre) => ({
           id: genre.id,
