@@ -1,5 +1,5 @@
 const express = require("express")
-const {getPopularMovies, getGenres} = require('../controllers/movieController')
+const {getPopularMovies, getGenres} = require('../../api/controllers/movieController')
 const router = express.Router() 
 
 router.route('/').get(getPopularMovies)
