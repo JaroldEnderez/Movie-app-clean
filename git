@@ -1,0 +1,35 @@
+[33mcommit 1d4dcca6060cac4c44e459804521e5f911b31cda[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: unknown <jaroldenderez69@gmail.com>
+Date:   Fri Sep 12 13:04:33 2025 +0800
+
+    Backend transferred to api
+
+[33mcommit de72a9fc148c83cc3d0210e57fbda7e1ebf3db33[m
+Author: unknown <jaroldenderez69@gmail.com>
+Date:   Fri Sep 12 09:26:55 2025 +0800
+
+    for deployment
+
+[33mcommit 20d04b90cdf350f5a0695254e35b542add5ce43a[m
+Author: unknown <jaroldenderez69@gmail.com>
+Date:   Fri Sep 12 06:47:49 2025 +0800
+
+    Adding preferred genres
+
+[33mcommit 1f786807c7e1ca45ba8c1d59730f1976ae457709[m[33m ([m[1;31morigin/feature/watch-later[m[33m, [m[1;32mfeature/watch-later[m[33m)[m
+Author: unknown <jaroldenderez69@gmail.com>
+Date:   Thu Sep 11 15:26:32 2025 +0800
+
+    Initial commit
+
+[33mcommit 317ad48e7875e6e90e4f4ee85181864b77de3ae6[m[33m ([m[1;31morigin/master[m[33m, [m[1;32mmaster[m[33m)[m
+Author: unknown <jaroldenderez69@gmail.com>
+Date:   Wed Sep 3 15:32:10 2025 +0800
+
+    Initial commit of current project state
+
+[33mcommit 9350219fe411b909b4ab6a3e5c402dbe8ef2e7c4[m
+Author: unknown <jaroldenderez69@gmail.com>
+Date:   Mon Jul 21 01:43:18 2025 +0800
+
+    Initialize project using Create React App
