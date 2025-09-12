@@ -4,6 +4,7 @@ import MovieFrame from "./MovieFrame";
 
 const Carousel = ({ 
   movies,
+  onMovieClick,
   onAddToWatchLater, 
   onRemoveFromWatchLater,
   watchLaterMovies,
@@ -38,6 +39,7 @@ const Carousel = ({
 
   return (
     <div className="flex flex-col items-center w-full">
+      
       <div
         ref={carouselRef}
         className="relative w-full h-[75vh] overflow-hidden rounded-lg"
@@ -68,6 +70,7 @@ const Carousel = ({
                 <MovieFrame
                   key={movie.id}
                   movie={movie}
+                  onClick={() => onMovieClick(movie)}
                   onAddToWatchLater={() => onAddToWatchLater(movie)}
                   onRemoveFromWatchLater={() => onRemoveFromWatchLater(movie.id)}
                   watchLaterMovies={watchLaterMovies}

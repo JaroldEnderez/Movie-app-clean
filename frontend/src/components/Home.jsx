@@ -24,7 +24,8 @@ const Home = ({
   movieCategories,
   selectedTab,
   searchQuery,
-  searchResults
+  searchResults,
+  closeModal
 }) => {
   const { genreId } = useParams();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -39,6 +40,7 @@ const Home = ({
     setCurrentIndex((prev) => (prev === currentMovies.length - 1 ? 0 : prev + 1));
   };
   
+
   useEffect(() => {
     if (genreId) {
       onFilterChange(Number(genreId));
@@ -53,13 +55,23 @@ const Home = ({
         if (selectedGenre === 0) return true; // "All genres"
         return movie.genre_ids.includes(selectedGenre);
       });
-  
 
   return (
     <div>
       {/* Carousel */}
+      {selectedMovie && (
+        <MovieModal
+          movie={selectedMovie}
+          onClose={closeModal} // function to clear selectedMovie
+          onAddToWatchLater={() => onAddToWatchLater(selectedMovie)}
+          onRemoveFromWatchLater={() => onRemoveFromWatchLater(selectedMovie.id)}
+          isInWatchLater={watchLaterMovies.some(m => m.id === selectedMovie.id)}
+          genres={genres}
+          handleGenreClick={handleGenreClick}
+        />
+      )}
       <div className="w-full overflow-hidden">
-        <Carousel movies={movieCategories['Trending']} selectedMovie={selectedMovie} />
+        <Carousel movies={movieCategories['Trending']} selectedMovie={selectedMovie} onMovieClick={onMovieClick}/>
       </div>
 
       {/* Tabs + Search + Filter */}
@@ -155,4 +167,4 @@ const Home = ({
   );
 };
 
-export default Home;
+export default Home; 

@@ -1,8 +1,36 @@
 import React, {useEffect, useRef} from 'react';
+import { useState } from 'react';
 
 const MovieModal = ({ movie, onClose, onAddToWatchLater, isInWatchLater, onRemoveFromWatchLater, recommendations, genres, handleGenreClick, similarMovies }) => {
   if (!movie) return null;
   const modalRef = useRef(null)
+  const [liked, setLiked] = useState(false);
+  const [animating, setAnimating] = useState(false);
+
+  const handleClick = async () => {
+    setLiked(!liked); // toggle UI
+    setAnimating(true); // trigger animation
+    setTimeout(() => setAnimating(false), 200); // reset animation
+
+    try {
+      if (!liked) {
+        // Add to liked movies in DB
+        await axios.post(
+          '/api/users/favorites',
+          { movieId },
+          { headers: { Authorization: `Bearer ${userToken}` } }
+        );
+      } else {
+        // Optionally remove if unliking
+        await axios.delete('/api/users/favorites', {
+          headers: { Authorization: `Bearer ${userToken}` },
+          data: { movieId },
+        });
+      }
+    } catch (err) {
+      console.error('Failed to update liked movies', err);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -51,8 +79,13 @@ const MovieModal = ({ movie, onClose, onAddToWatchLater, isInWatchLater, onRemov
               <div className="text-center cursor-pointer flex-1 bg-green-400 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg">
                 Watch Now
               </div>
-              <div className="bg-black hover:bg-gray-700 p-2 rounded-xl cursor-pointer">
-                ❤️
+              <div
+                className={`bg-black hover:bg-gray-700 p-2 rounded-xl cursor-pointer transition-transform duration-200 ${
+                  animating ? 'scale-125' : ''
+                }`}
+                onClick={handleClick}
+              >
+                {liked ? '❤️' : '🤍'}
               </div>
             </div>
 

@@ -6,6 +6,7 @@ import axios from "axios";
 const ProfilePage = ({ genres }) => {
   const navigate = useNavigate();
   const storedUser = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
 
   const [avatar, setAvatar] = useState("https://i.pravatar.cc/150?img=12");
   const [preferredGenres, setPreferredGenres] = useState([]);
@@ -19,14 +20,20 @@ const ProfilePage = ({ genres }) => {
   useEffect(() => {
     const fetchPreferredGenres = async () => {
       try {
-        const res = await axios.get(`/api/users/${storedUser._id}/genres`);
+        const res = await axios.get(`/api/users/genres`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setPreferredGenres(res.data.preferredGenres);
       } catch (err) {
         console.error("Failed to fetch preferred genres", err);
       }
     };
-    fetchPreferredGenres();
-  }, [storedUser._id]);
+  
+    if (token) {
+      fetchPreferredGenres();
+    }
+  }, [token]);
+  
 
   // Update avatar
   const handleAvatarChange = (e) => {
@@ -40,18 +47,19 @@ const ProfilePage = ({ genres }) => {
 
   // Toggle genre selection
   const toggleGenre = async (genreName) => {
-    const token = localStorage.getItem("token"); // get stored JWT
     try {
+  
       if (preferredGenres.includes(genreName)) {
         // Remove genre
-        await axios.delete('/api/users/genres', {
-          data: { genre: genreName },
-          headers: { Authorization: `Bearer ${token}` }
+        await axios.delete("/api/users/genres", {
+          params: { genre: genreName },
+          headers: { Authorization: `Bearer ${token}` },
         });
-        setPreferredGenres(preferredGenres.filter(g => g !== genreName));
+        setPreferredGenres(preferredGenres.filter((g) => g !== genreName));
       } else {
         // Add genre
-        await axios.post('/api/users/genres', 
+        await axios.post(
+          "/api/users/genres",
           { genre: genreName },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -73,7 +81,13 @@ const ProfilePage = ({ genres }) => {
       }}
     >
       <div className='absolute inset-0 bg-black opacity-60'></div>
-      <div className="w-full max-w-3xl bg-gray-600 rounded-2xl shadow-2xl p-6 text-white z-30">
+      <div className="relative w-full max-w-3xl bg-gray-600 rounded-2xl shadow-2xl p-6 text-white z-30">
+        <button
+            onClick={() => navigate("/")}
+            className="absolute top-4 right-4 text-white bg-red-600 hover:bg-red-700 rounded-full w-8 h-8 flex items-center justify-center font-bold z-50"
+            >
+            ×
+        </button>
         
         {/* Header */}
         <div className="flex items-center gap-6 mb-6">
@@ -165,7 +179,7 @@ const ProfilePage = ({ genres }) => {
         <div className="mt-6">
           <h2 className="text-xl font-semibold mb-2">Account Settings</h2>
           <button
-            className="w-full bg-gray-300 text-gray-800 py-2 rounded-lg hover:bg-gray-400 transition"
+            className="w-full bg-gray-300 text-white py-2 rounded-lg hover:bg-gray-400 transition"
             onClick={() => navigate("/change-password")}
           >
             Change Password

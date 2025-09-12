@@ -3,6 +3,7 @@ import MovieModal from './MovieModal';
 
 const MovieFrame = ({
   movie,
+  onClick,
   onAddToWatchLater,
   onRemoveFromWatchLater,
   watchLaterMovies,
@@ -20,7 +21,7 @@ const MovieFrame = ({
       {/* Movie Card */}
       <div
         className="w-60 bg-black p-1 cursor-pointer rounded-xl"
-        onClick={() => setIsModalOpen(true)}
+        onClick={onClick}
       >
         <div
           className="relative max-w-sm rounded-lg overflow-hidden transition-all duration-800"
@@ -31,17 +32,7 @@ const MovieFrame = ({
       </div>
 
       {/* Movie Modal */}
-      {isModalOpen && (
-        <MovieModal
-          movie={movie}
-          onClose={() => setIsModalOpen(false)}
-          onAddToWatchLater={() => onAddToWatchLater(movie)}
-          onRemoveFromWatchLater={() => onRemoveFromWatchLater(movie.id)}
-          isInWatchLater={isInWatchLater}
-          genres={genres}
-          handleGenreClick={handleGenreClick}
-        />
-      )}
+      
     </>
   );
 };

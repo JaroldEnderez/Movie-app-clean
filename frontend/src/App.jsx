@@ -87,6 +87,9 @@ function App() {
     fetchGenres()
   }, []);
 
+  useEffect(() => {
+    console.log("Selected Movie: ", selectedMovie)
+  }, [selectedMovie])
   // Load watchLaterMovies from localStorage (logged in) or sessionStorage (not logged in)
   useEffect(() => {
     if (isLoggedIn) {
@@ -132,13 +135,15 @@ function App() {
     setSearchResults(results);
   };
   
-  
-  
+
 
   const handleMovieClick = (movie) => {
     setSelectedMovie(movie);
     setBrowsedMovies([...browsedMovies, movie])
+    console.log("Movie clicked:", movie);
+
   };
+  const closeModal = () => setSelectedMovie(null);
 
   const handleGenreClick = useCallback((genreId) => {
     setSelectedGenre(Number(genreId));
@@ -239,6 +244,7 @@ function App() {
                   selectedMovie={selectedMovie}
                   watchLaterMovies={watchLaterMovies}
                   onSearch={handleSearch}
+                  closeModal={closeModal}
                   onMovieClick={handleMovieClick}
                   onAddToWatchLater={handleAddToWatchLater}
                   onRemoveFromWatchLater={handleRemoveFromWatchLater}
@@ -268,11 +274,11 @@ function App() {
             />
             <Route path="/login" element={<Login />} />
             <Route path="/profile" 
-            element={
-            <ProtectedRoute>
-              <ProfilePage genres={genres}/>
-            </ProtectedRoute>
-            } />
+              element={
+              <ProtectedRoute>
+                <ProfilePage genres={genres}/>
+              </ProtectedRoute>
+              } />
             <Route path="/change-password" element={<ChangePasswordPage/>} />
           </Routes>
         </div>

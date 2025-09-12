@@ -178,17 +178,18 @@ const addToPreferredGenres = async (req, res) => {
 
 // Remove a genre from user's preferred genres
 const removeFromPreferredGenres = asyncHandler(async (req, res) => {
-  const { genre } = req.body; // single genre to remove
-  if (!genre) return res.status(400).json({ msg: 'Genre is required' });
+  const genreToRemove = req.query.genre; // get genre from query
+  if (!genreToRemove) return res.status(400).json({ msg: "No genre specified" });
 
-  const user = await User.findById(req.user.id);
-  if (!user) return res.status(404).json({ msg: 'User not found' });
+  const user = await User.findById(req.user);
+  if (!user) return res.status(404).json({ msg: "User not found" });
 
-  user.preferredGenres = (user.preferredGenres || []).filter(g => g !== genre);
+  user.preferredGenres = user.preferredGenres.filter(g => g !== genreToRemove);
   await user.save();
 
   res.json({ preferredGenres: user.preferredGenres });
 });
+
 
 
 module.exports = 
