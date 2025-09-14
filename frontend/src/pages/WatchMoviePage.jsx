@@ -5,19 +5,19 @@ import { useParams } from "react-router-dom";
 export default function WatchMoviePage() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const location = useLocation()
-  const {movie, genres} = location.state || {}
-  // Mock movie data
+  const location = useLocation();
+  const { movie, genres } = location.state || {};
+
+  if (!movie) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        <p>Movie data not found.</p>
+      </div>
+    );
+  }
 
   return (
-    <div
-      className="relative bg-gray-800 p-6 min-h-screen flex justify-center items-start shadow-2xl"
-      style={{
-        backgroundImage: `url(${MovieImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
+    <div className="relative bg-black p-6 min-h-screen flex justify-center items-start shadow-2xl">
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black opacity-70"></div>
 
@@ -42,12 +42,18 @@ export default function WatchMoviePage() {
         {/* Movie Details */}
         <p className="mb-4">{movie.description}</p>
         <div className="flex flex-wrap gap-2 mb-4">
-          {movie.genre_ids && genres && movie.genre_ids.map((genreId,index) => {
-              const genre = genres.find(g=> g.id === genreId)
-              const isLast = index === movie.genre_ids.length - 1;
+          {movie.genre_ids &&
+            genres &&
+            movie.genre_ids.map((genreId) => {
+              const genre = genres.find((g) => g.id === genreId);
               return genre ? (
-                <span key={genre.id} className='cursor-pointer bg-gray-700 text-sm px-2 py-1 rounded-full mr-2' onClick={() => {handleGenreClick(genre.id); onClose()}}>{genre.name}</span>
-              ) : null
+                <span
+                  key={genre.id}
+                  className="cursor-pointer bg-gray-700 text-sm px-2 py-1 rounded-full"
+                >
+                  {genre.name}
+                </span>
+              ) : null;
             })}
         </div>
         <p className="text-sm text-gray-300">Release Date: {movie.releaseDate}</p>
