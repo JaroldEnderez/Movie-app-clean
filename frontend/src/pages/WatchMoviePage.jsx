@@ -1,6 +1,5 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import MovieImage from "../assets/movie.png"; // replace with your own image
 import { useParams } from "react-router-dom";
 
 export default function WatchMoviePage() {
