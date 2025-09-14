@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import MovieImage from '../assets/Movie.png';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "../api.js";
+
 
 const ProfilePage = ({ genres }) => {
   const navigate = useNavigate();
@@ -20,7 +22,7 @@ const ProfilePage = ({ genres }) => {
   useEffect(() => {
     const fetchPreferredGenres = async () => {
       try {
-        const res = await axios.get(`/api/users/genres`, {
+        const res = await api.get(`/api/users/genres`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setPreferredGenres(res.data.preferredGenres);
@@ -51,14 +53,14 @@ const ProfilePage = ({ genres }) => {
   
       if (preferredGenres.includes(genreName)) {
         // Remove genre
-        await axios.delete("/api/users/genres", {
+        await api.delete("/api/users/genres", {
           params: { genre: genreName },
           headers: { Authorization: `Bearer ${token}` },
         });
         setPreferredGenres(preferredGenres.filter((g) => g !== genreName));
       } else {
         // Add genre
-        await axios.post(
+        await api.post(
           "/api/users/genres",
           { genre: genreName },
           { headers: { Authorization: `Bearer ${token}` } }

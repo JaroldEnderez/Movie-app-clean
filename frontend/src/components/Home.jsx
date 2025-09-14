@@ -106,62 +106,61 @@ const Home = ({
         </div>
       </div>
 
-      {/* Movies Grid */}
-        {moviesToDisplay.length === 0 ? (
-          <div className="flex justify-center items-center h-full w-full mb-6">
-            <p className="text-white text-2xl">
-              {searchQuery ? 'No matching movies found' : 'No movies in this category'}
-            </p>
-          </div>
-        ) : (
-          <div className="mb-6">
-            <div className='flex justify-between items-center w-full px-6'>
-              <span className="text-white text-2xl">
+      {moviesToDisplay.length === 0 ? (
+        <div className="flex justify-center items-center h-full w-full mb-6 px-4">
+          <p className="text-white text-lg sm:text-2xl text-center">
+            {searchQuery ? 'No matching movies found' : 'No movies in this category'}
+          </p>
+        </div>
+      ) : (
+        <div className="mb-6">
+          {/* Header */}
+          <div className="flex justify-center sm:justify-between items-center w-full px-4 sm:px-6">
+            <span className="text-white text-lg sm:text-2xl font-semibold text-center sm:text-left">
               {searchQuery ? (
-                  `Search Results for "${searchQuery}"`
-                ) : selectedTab === "All Movies" ? (
+                `Search Results for "${searchQuery}"`
+              ) : selectedTab === "All Movies" ? (
+                selectedGenre && selectedGenre !== 0
+                  ? `All ${genres.find(g => g.id === selectedGenre)?.name || ''} Movies`
+                  : "All Movies"
+              ) : (
+                `${selectedTab}${
                   selectedGenre && selectedGenre !== 0
-                    ? `All ${genres.find(g => g.id === selectedGenre)?.name || ''} Movies`
-                    : "All Movies"
-                ) : (
-                  ` ${selectedTab}${
-                    selectedGenre && selectedGenre !== 0
-                      ? ` for ${genres.find(g => g.id === selectedGenre)?.name || ''}`
-                      : ""
-                  }`
-                )}
+                    ? ` for ${genres.find(g => g.id === selectedGenre)?.name || ''}`
+                    : ""
+                }`
+              )}
+            </span>
+          </div>
 
+          {/* Movie Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 px-4 sm:px-6 mt-4">
+            {moviesToDisplay.slice(0, 24).map((movie) => (
+              <MovieFrame
+                key={movie.id}
+                onClick={() => onMovieClick(movie)}
+                movie={movie}
+                onAddToWatchLater={() => onAddToWatchLater(movie)}
+                onRemoveFromWatchLater={() => onRemoveFromWatchLater(movie.id)}
+                genres={genres}
+                watchLaterMovies={watchLaterMovies}
+                handleGenreClick={handleGenreClick}
+              />
+            ))}
+          </div>
+
+          {/* See All */}
+          {moviesToDisplay.length > 24 && (
+            <div className="flex justify-center items-center">
+              <span
+                onClick={() => navigate(`/movies/${selectedTab.toLowerCase()}`)}
+                className="text-lg sm:text-2xl underline cursor-pointer px-6 py-2 hover:text-gray-300"
+              >
+                See all →
               </span>
             </div>
-          {/* Show first 24 movies */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 px-6 mt-4">
-              {moviesToDisplay.slice(0, 24).map((movie) => (
-                <MovieFrame
-                  key={movie.id}
-                  onClick={() => onMovieClick(movie)}
-                  movie={movie}
-                  onAddToWatchLater={() => onAddToWatchLater(movie)}
-                  onRemoveFromWatchLater={() => onRemoveFromWatchLater(movie.id)}
-                  genres={genres}
-                  watchLaterMovies={watchLaterMovies}
-                  handleGenreClick={handleGenreClick}
-                />
-              ))}
-            </div>
-
-            {/* Show See All button only if movies exceed 24 */}
-            {moviesToDisplay.length > 24 && (
-              <div className="flex justify-center items-center">
-                <span
-                  onClick={() => navigate(`/movies/${selectedTab.toLowerCase()}`)}
-                  className="text-2xl underline cursor-pointer pr-4 hover:text-gray-300"
-                >
-                  See all →
-                </span>
-              </div>
-            )}
+          )}
         </div>
-        
       )}
     </div>
   );

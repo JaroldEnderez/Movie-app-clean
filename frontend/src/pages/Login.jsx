@@ -3,6 +3,7 @@ import MovieImage from '../assets/Movie.png'; // Import the image
 import axios from 'axios'; // Added axios import
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { AuthContext } from '../App'; // Import AuthContext
+import api from '../api.js'
 
 const Login = () => {
   const [isLogin, setIsLogin] = React.useState(true);
@@ -26,7 +27,7 @@ const Login = () => {
       console.log("Logging in with email:", email);
   
       // Call backend login API
-      const response = await axios.post('/api/users/login', { email, password });
+      const response = await api.post('/api/users/login', { email, password });
   
       if (!response.data || !response.data.user || !response.data.token) {
         console.error('Login response missing user or token:', response.data);
@@ -47,7 +48,7 @@ const Login = () => {
         const token = response.data.token;
         for (const movie of temporaryWatchLater) {
           try {
-            await axios.post(
+            await api.post(
               '/api/users/favorites',
               { movieId: movie.id },
               { headers: { Authorization: `Bearer ${token}` } }
@@ -71,7 +72,7 @@ const Login = () => {
     e.preventDefault();
     try {
       // Call backend signup API
-      const response = await axios.post('/api/users/signup', { username, email, password });
+      const response = await api.post('/api/users/signup', { username, email, password });
       console.log('Signup successful:', response.data);
   
       // Store token
@@ -90,7 +91,7 @@ const Login = () => {
         const token = response.data.token; 
         for (const movie of temporaryWatchLater) {
           try {
-            await axios.post(
+            await api.post(
               '/api/users/favorites',
               { movieId: movie.id },
               { headers: { Authorization: `Bearer ${token}` } }

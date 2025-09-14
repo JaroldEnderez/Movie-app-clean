@@ -10,6 +10,7 @@ import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRou
 import ProfilePage from './pages/Profile';
 import ChangePasswordPage from './pages/Password';
 import api from "./api";
+import WatchMoviePage from './pages/WatchMoviePage';
 export const AuthContext = React.createContext(null); // Create AuthContext
 
 const getAuthToken = () => localStorage.getItem('token'); // Helper to get token
@@ -268,9 +269,9 @@ function App() {
             <Route
               path="/watch-later"
               element={
-                <ProtectedRoute>
+              
                   <Watchlater watchLaterMovies={watchLaterMovies} />
-                </ProtectedRoute>
+              
               }
             />
             <Route path="/login" element={<Login />} />
@@ -281,6 +282,7 @@ function App() {
               </ProtectedRoute>
               } />
             <Route path="/change-password" element={<ChangePasswordPage/>} />
+            <Route path="/watch/:id" element={<WatchMoviePage/>}/>
           </Routes>
         </div>
 
