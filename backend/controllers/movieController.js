@@ -31,12 +31,13 @@ const getMovieById = async (req, res) => {
     try {
         const { id } = req.params;
         const response = await axios.get(
-            `https://${config.tmdbBaseUrl}/3/movie/${id}?api_key=${config.tmdbApiKey}&language=en-US`
+            `${config.tmdbBaseUrl}/movie/${id}?api_key=${config.tmdbApiKey}&language=en-US`
         );
         const movie = {
             id: response.data.id,
             title: response.data.title,
             poster: `https://image.tmdb.org/t/p/w500${response.data.poster_path}`,
+            backdrop: `https://image.tmdb.org/t/p/w780${response.data.backdrop_path}`,
             rating: response.data.vote_average,
             overview: response.data.overview,
             release_date: response.data.release_date,
@@ -54,6 +55,35 @@ const getMovieById = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error fetching movie',
+            error: error.message
+        });
+    }
+};
+
+// Get movie videos (trailers)
+const getMovieVideos = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const response = await axios.get(
+            `${config.tmdbBaseUrl}/movie/${id}/videos?api_key=${config.tmdbApiKey}&language=en-US`
+        );
+
+        const videos = (response.data.results || []).map(v => ({
+            id: v.id,
+            name: v.name,
+            site: v.site,
+            type: v.type,
+            key: v.key,
+            official: v.official,
+            published_at: v.published_at
+        }));
+
+        res.json({ success: true, data: videos });
+    } catch (error) {
+        console.error('Error fetching movie videos:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching movie videos',
             error: error.message
         });
     }
@@ -116,5 +146,6 @@ module.exports = {
     getPopularMovies,
     getMovieById,
     searchMovies,
-    getGenres
+    getGenres,
+    getMovieVideos
 }; 

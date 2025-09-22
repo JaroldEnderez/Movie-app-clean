@@ -29,6 +29,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token')); // New state for login status
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(true)
 
   const location = useLocation(); // Get current location
   const navigate = useNavigate(); // Initialize navigate
@@ -65,6 +66,8 @@ function App() {
         
       }catch (error){
         console.error("Error fetching movies!", error)
+      }finally {
+        setIsLoading(false)
       }
     }
 
@@ -222,6 +225,14 @@ function App() {
       .slice(0, 20) // top 20 highest rated
   };
   
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        {/* Simple spinner */}
+        <div className="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
