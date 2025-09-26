@@ -20,14 +20,13 @@ const MovieFrame = ({
     <>
       {/* Movie Card */}
       <div
-        className="w-60 bg-black p-1 cursor-pointer rounded-xl"
+        className="w-full sm:w-60 bg-black p-1 cursor-pointer rounded-xl"
         onClick={onClick}
       >
         <div
-          className="relative max-w-sm rounded-lg overflow-hidden transition-all duration-800"
+          className="relative rounded-lg overflow-hidden transition-all duration-800 aspect-[2/3]"
         >
-          <img className="w-full h-80 object-cover hover:brightness-75" src={movie.poster} alt={movie.title} />
-          
+          <img className="w-full h-full object-cover hover:brightness-75" src={movie.poster} alt={movie.title} />
         </div>
       </div>
 

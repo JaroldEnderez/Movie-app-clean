@@ -115,7 +115,7 @@ const MovieModal = ({ movie, onClose, onAddToWatchLater, isInWatchLater, onRemov
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-3 mt-4">
-            <div className="flex flex-col sm:flex-row items-center gap-3">
+            <div className="flex sm:flex-row items-center gap-3">
               <div
                 className="text-center cursor-pointer flex-1 bg-green-400 hover:bg-green-500 
                           text-white font-bold py-2 px-4 rounded-lg"

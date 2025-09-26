@@ -66,7 +66,7 @@ const Carousel = ({
                 </h2>
               </div>
               
-              <div className="flex absolute bottom-0 left-6 p-4 items-end z-40 gap-6">
+              <div className="flex absolute bottom-0 left-6 p-4 items-end z-40 gap-2 sm:gap-6">
                 <MovieFrame
                   key={movie.id}
                   movie={movie}
@@ -78,12 +78,12 @@ const Carousel = ({
                   setIsModalOpen={setIsModalOpen} // pass setter
                   className="w-[200px] h-[320px] flex-shrink-0"
                 />
-                <div className="m-6 mb-0 pb-4 flex-1">
-                  <div className="rounded-full p-2 bg-black text-white flex items-center gap-1 w-fit px-4 mb-2 border border-white">
-                    <span>⭐</span>
+                <div className="m-6 mb-0 flex-1">
+                  <div className="rounded-full p-2 bg-black text-white flex items-center gap-1 w-fit sm:px-4 sm:mb-2 border border-white whitespace-nowrap leading-none">
+                    <span className="text-sm">⭐</span>
                     <span>{parseFloat(movie.rating).toFixed(2)} / 10</span>
                   </div>
-                  <p className="text-white font-semibold text-sm md:text-base line-clamp-3">
+                  <p className="hidden sm:flex text-white font-semibold text-sm md:text-base line-clamp-3">
                     {movie.overview}
                   </p>
                 </div>

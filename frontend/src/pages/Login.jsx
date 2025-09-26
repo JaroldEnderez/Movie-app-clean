@@ -111,9 +111,9 @@ const Login = () => {
   
 
   return (
-    <div className='flex h-screen w-screen'> {/* Changed to flex for side-by-side, removed centering for now */}
+    <div className='flex flex-col sm:flex-row h-screen w-screen'> {/* Changed to flex for side-by-side, removed centering for now */}
       {/* Movie Landing Page Section */}
-      <div className='w-1/2 h-full relative p-6 flex items-center justify-center flex-col gap-4 shadow-2xl'
+      <div className='w-full sm:w-1/2 h-full relative p-6 flex items-center justify-center flex-col gap-4 shadow-2xl'
       style={{backgroundImage: `url(${MovieImage})`, backgroundSize: 'cover', backgroundPosition:'center' }}>
         <div className='absolute inset-0 bg-black opacity-60'></div> {/* Dark overlay */}
         <div className='relative text-center z-10'>
@@ -126,7 +126,7 @@ const Login = () => {
       </div>
 
       {/* Login/Signup Form Section */}
-      <div className='w-1/2 h-full relative bg-gray-900 p-8 flex flex-col gap-6 rounded-lg shadow-2xl justify-center items-center'>
+      <div className='w-full sm:w-1/2 h-full relative bg-gray-900 p-8 flex flex-col gap-6 rounded-lg shadow-2xl justify-center items-center'>
         {/* Netflix Logo Placeholder */}
         
          <div className='w-full max-w-sm'> {/* Wrapper for form elements to control width */}

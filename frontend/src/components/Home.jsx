@@ -57,7 +57,7 @@ const Home = ({
       });
 
   return (
-    <div>
+    <div className="px-2 sm:px-0">
       {/* Carousel */}
       {selectedMovie && (
         <MovieModal
@@ -70,15 +70,16 @@ const Home = ({
           handleGenreClick={handleGenreClick}
         />
       )}
-      <div className="w-full overflow-hidden">
+      <div className="w-full overflow-hidden max-w-full">
         <Carousel movies={movieCategories['Trending']} selectedMovie={selectedMovie} onMovieClick={onMovieClick}/>
       </div>
 
       {/* Tabs + Search + Filter */}
       <div className="w-full overflow-hidden border-b border-gray-300 mt-6 mb-4">
-        <div className="flex justify-between flex-wrap">
+        <div className="flex justify-between flex-wrap gap-2">
           {/* Tabs */}
-          <div className="flex space-x-4 px-4 py-4 flex-wrap">
+          <div className="w-full flex flex-wrap sm:flex-row sm:w-auto overflow-x-auto no-scrollbar px-2 sm:px-4 py-3 -mx-2 sm:mx-0">
+            <div className="flex flex-wrap space-x-3 sm:space-x-4 w-max space-y-3">
             {Object.keys(movieCategories).map((tab, i) => (
               <div
                 key={i}
@@ -93,10 +94,11 @@ const Home = ({
                 {tab}
               </div>
             ))}
+            </div>
           </div>
 
           {/* Search + Filter */}
-          <div className="flex flex-wrap items-center gap-4 px-4 py-4">
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 px-2 sm:px-4 py-3 sm:py-4 w-full sm:w-auto">
             <SearchBar onSearch={onSearch} />
             <div className="flex items-center gap-2">
               <h4 className="p-2">Filter by genre:</h4>
@@ -134,7 +136,7 @@ const Home = ({
           </div>
 
           {/* Movie Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 px-4 sm:px-6 mt-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 justify-items-center sm:justify-items-stretch gap-2 sm:gap-4 mb-6 px-2 sm:px-6 mt-4">
             {moviesToDisplay.slice(0, 24).map((movie) => (
               <MovieFrame
                 key={movie.id}
